@@ -128,6 +128,7 @@ def get_result(result):
     identifiers.append(elem[0])
   for elem in identifiers:
     identifiers[identifiers.index(elem)] = "https://{}.smartschool.be/results/main/results/details/".format(SCHOOL_NAME) + elem
+  identifiers = []
 
   options = Options()
   options.add_argument('--headless')
@@ -190,10 +191,12 @@ while True:
   if(old_html == "EMPTY"):
     old_html = new_html
     old_points_list = split_points(old_html)
+    new_html = []
   if(new_html != old_html):
     points_list = split_points(new_html)
     result = comp_points(points_list, old_points_list)
     result = get_result(result)
+    new_html = []
   old_html = new_html
   currentDateAndTime = datetime.now()
   if(int(currentDateAndTime.hour) == 22):
