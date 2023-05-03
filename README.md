@@ -6,7 +6,7 @@ I'm rewriting the code to make it look prettier.
 ## Requirements  
 * **Linux server**
 * Smartschool account
-* Telegram account
+* Telegram account(free)
 
 ## Installation of packages
 _follow the step by step instruction for easy installation. In case of problems, create a Github issue._
