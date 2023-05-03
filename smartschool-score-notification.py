@@ -126,6 +126,7 @@ def get_result(result):
     elem = elem.split('<button evaluation-identifier="')
     elem = elem[1].split('" class="evaluation__content')
     identifiers.append(elem[0])
+    result.remove(elem)
   for elem in identifiers:
     identifiers[identifiers.index(elem)] = "https://{}.smartschool.be/results/main/results/details/".format(SCHOOL_NAME) + elem
   identifiers = []
@@ -147,7 +148,7 @@ def get_result(result):
       password_field.submit()
 
     img_container = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, "//*[@class='side-panel__panel']")))
-    time.sleep(3)
+    time.sleep(3) #Time to let the animation load for the screenshot
     
     img_container.screenshot("result_{}.png".format(identifiers.index(elem)))
     img = Image.open("result_{}.png".format(identifiers.index(elem)))
@@ -176,6 +177,7 @@ def send_results(identifiers, subjects):
             subject_string += subject
         else:
             subject_string += " en " + subject
+    del subjects
 
   for elem in identifiers:
     files = {'photo':open("result_{}.png".format(identifiers.index(elem)), 'rb')}
@@ -185,18 +187,19 @@ def send_results(identifiers, subjects):
       time.sleep(2)
       requests.post('https://api.telegram.org/bot{}/sendPhoto?chat_id={}&disable_notification=true'.format(BOT_TOKEN, CHAT_ID), files=files)
     os.remove("result_{}.png".format(identifiers.index(elem)))
+  del identifiers
 
 while True:
   new_html = get_html()
   if(old_html == "EMPTY"):
     old_html = new_html
     old_points_list = split_points(old_html)
-    new_html = []
+    new_html = ""
   if(new_html != old_html):
     points_list = split_points(new_html)
     result = comp_points(points_list, old_points_list)
     result = get_result(result)
-    new_html = []
+    new_html = ""
   old_html = new_html
   currentDateAndTime = datetime.now()
   if(int(currentDateAndTime.hour) == 22):
