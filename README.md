@@ -52,7 +52,7 @@ _follow the step by step instruction for easy installation. In case of problems,
 ## Install the program
 1. Donwload all the files from Github
    ```sh
-   git clone https://github.com/Warre-Willie/Smartschool-score-notification.git
+   git clone https://github.com/Warre-Willie/smartschool-score-notification.git
    ```
 3. Go inside the folder with all the files
    ```sh
