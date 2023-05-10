@@ -29,6 +29,7 @@ time_interval = timedelta(
   seconds=time_interval.second,
 )
 
+SLEEP_ENABLED = SETTINGS['SLEEP_ENABLED']
 START_SLEEP = SETTINGS['START_SLEEP']
 STOP_SLEEP = SETTINGS['STOP_SLEEP']
 start_sleep = datetime.strptime(START_SLEEP, "%H:%M")
@@ -56,6 +57,6 @@ while error_state == False:
         out_file.truncate(0)
     out_file.close()
     currentDateAndTime = datetime.now()
-    if(int(currentDateAndTime.hour) == 22):
+    if(int(currentDateAndTime.hour) == start_sleep.hour and SLEEP_ENABLED):
         time.sleep(sleep_time.total_seconds())
     time.sleep(time_interval.total_seconds())
