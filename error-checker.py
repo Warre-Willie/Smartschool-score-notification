@@ -1,3 +1,9 @@
+# __      __                                __      __.__.__  .__                         
+#/  \    /  \_____ ______________   ____   /  \    /  \__|  | |  |   ____   _____   ____  
+#\   \/\/   /\__  \\_  __ \_  __ \_/ __ \  \   \/\/   /  |  | |  | _/ __ \ /     \_/ __ \ 
+# \        /  / __ \|  | \/|  | \/\  ___/   \        /|  |  |_|  |_\  ___/|  Y Y  \  ___/ 
+#  \__/\__/  (______/__|   |__|    \_____>   \__/\__/ |__|____/____/\_____>__|_|__/\_____> 
+
 import configparser
 import requests
 import time
@@ -36,13 +42,19 @@ if sleep_time.days < 0:
     )
 error_state = False
 while error_state == False:
-    out_file = open("smartschool.out", "r").read()
-    if out_file.find("error") != -1:
+    out_file = open("smartschool.out", "r")
+    data = out_file.read()
+    if data.find("Traceback (most recent call last):") != -1:
         error_state = True
         while True:
             response = requests.post('https://api.telegram.org/bot{}/sendMessage?chat_id={}&text=Program stopped check smartschool.out file for more information'.format(BOT_TOKEN, CHAT_ID))
             if response.status_code == 200:
-                break
+                exit()
+    if data.find("[WDM] - Downloading:") != -1:
+        out_file.close()
+        out_file = open("smartschool.out", "a")
+        out_file.truncate(0)
+    out_file.close()
     currentDateAndTime = datetime.now()
     if(int(currentDateAndTime.hour) == 22):
         time.sleep(sleep_time.total_seconds())
