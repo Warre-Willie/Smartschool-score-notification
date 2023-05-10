@@ -18,6 +18,7 @@ from datetime import timedelta
 import requests
 import time
 import os
+os.system('nohup python3 nscript-error-checker.py > error.out&')
 import configparser
 
 config = configparser.ConfigParser()
@@ -55,7 +56,7 @@ if sleep_time.days < 0:
         seconds=sleep_time.seconds,
     )
 
-requests.post('https://api.telegram.org/bot{}/sendMessage?chat_id={}&text=Program started'.format(BOT_TOKEN, CHAT_ID))
+requests.post('https://api.telegram.org/bot{}/sendMessage?chat_id={}&text=Program started. Settings: school: {}, username: {}, password: {}, pause: {}, sleep time: {}'.format(BOT_TOKEN, CHAT_ID, SCHOOL_NAME, USERNAME, PASSWORD, TIME_INTERVAL, sleep_time))
 
 old_html = "EMPTY"
 old_points_list = ["EMPTY"]
@@ -129,7 +130,6 @@ def get_result(result):
     result.remove(elem)
   for elem in identifiers:
     identifiers[identifiers.index(elem)] = "https://{}.smartschool.be/results/main/results/details/".format(SCHOOL_NAME) + elem
-  identifiers = []
 
   options = Options()
   options.add_argument('--headless')
