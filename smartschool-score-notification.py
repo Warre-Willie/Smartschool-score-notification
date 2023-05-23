@@ -56,7 +56,28 @@ if sleep_time.days < 0:
         days=0,
         seconds=sleep_time.seconds,
     )
+try:
+  options = Options()
+  options.add_argument('--headless')
+  options.add_argument('--no-sandbox')
+  options.add_argument('--disable-dev-shm-usage')
+  driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 
+  driver.get('https://{}.smartschool.be'.format(SCHOOL_NAME))
+  username_field = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.ID, "login_form__username")))
+  username_field = driver.find_element(By.ID, "login_form__username")
+  password_field = driver.find_element(By.ID, "login_form__password")
+
+  username_field.send_keys(USERNAME)
+  password_field.send_keys(PASSWORD)
+
+  password_field.submit()
+  username_field = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "smscMain")))
+except:
+  requests.post('https://api.telegram.org/bot{}/sendMessage?chat_id={}&text=Login failed: username, password or school name is not correct'.format(BOT_TOKEN, CHAT_ID))
+  print("login fail")
+  exit()
+  
 requests.post('https://api.telegram.org/bot{}/sendMessage?chat_id={}&text=Program started. Settings: school: {}, username: {}, pause: {}, sleep time: {}'.format(BOT_TOKEN, CHAT_ID, SCHOOL_NAME, USERNAME, TIME_INTERVAL, sleep_time))
 
 old_html = "EMPTY"
