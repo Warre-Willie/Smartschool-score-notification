@@ -24,7 +24,6 @@ import configparser
 config = configparser.ConfigParser()
 config.read('config.ini')
 config.sections()
-
 TELEGRAM = config['TELEGRAM']
 BOT_TOKEN = TELEGRAM['BOT_TOKEN']
 CHAT_ID = TELEGRAM['CHAT_ID']
@@ -56,6 +55,27 @@ if sleep_time.days < 0:
         days=0,
         seconds=sleep_time.seconds,
     )
+try:
+  options = Options()
+  options.add_argument('--headless')
+  options.add_argument('--no-sandbox')
+  options.add_argument('--disable-dev-shm-usage')
+  driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+
+  driver.get('https://{}.smartschool.be'.format(SCHOOL_NAME))
+  username_field = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.ID, "login_form__username")))
+  username_field = driver.find_element(By.ID, "login_form__username")
+  password_field = driver.find_element(By.ID, "login_form__password")
+
+  username_field.send_keys(USERNAME)
+  password_field.send_keys(PASSWORD)
+
+  password_field.submit()
+  username_field = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "smscMain")))
+except:
+  requests.post('https://api.telegram.org/bot{}/sendMessage?chat_id={}&text=Login failed: username, password or school name is not correct'.format(BOT_TOKEN, CHAT_ID))
+  print("login fail")
+  exit()
 
 requests.post('https://api.telegram.org/bot{}/sendMessage?chat_id={}&text=Program started. Settings: school: {}, username: {}, pause: {}, sleep time: {}'.format(BOT_TOKEN, CHAT_ID, SCHOOL_NAME, USERNAME, TIME_INTERVAL, sleep_time))
 
@@ -79,8 +99,9 @@ def get_html():
 
   password_field.submit()
 
+  time.sleep(5)
   filter_del_button = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '//*[@class="reset-filters-btn"]')))
-  time.sleep(3)
+  time.sleep(5)
   filter_del_button.click()
   html = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.TAG_NAME, "td")))  
   html = driver.page_source
@@ -88,7 +109,6 @@ def get_html():
 
   html = html.split('<table class="table-page__container__wrapper__table js-results-table">', 2)
   html = html[1].split('</table></div></div></div>', 2)
-  # html = html[0] + '<tr class="row row--course js-row-course"><td class="cell cell--course js-cell-fixed cell--fixed"><div class="cell__content"><span style="--indentation: 3;" class="cell__icon smsc-svg--24 smsc-svg--flag_great_britain--24"></span><span aria-label="Engels" class="cell__course-name">Engels</span></div></td><td class="cell cell--evaluation js-cell-evaluation evaluation"><button evaluation-identifier="782_10843_0_normal_558199" class="evaluation__content js-evaluation-content c-yellow-combo--100" style=" --feedback-color: var(--c-yellow--700);"><div class="evaluation-graphic evaluation-graphic--results-table evaluation-graphic--percentage"><div class="graphic--percentage-as-a-text graphic graphic--32"><span title="2,5/5" class="graphic__text">2,5/5</span></div></div></button></td><td class="cell cell--evaluation js-cell-evaluation evaluation"><button evaluation-identifier="782_10843_0_normal_561065" class="evaluation__content js-evaluation-content c-green-combo--100" style=" --feedback-color: var(--c-green--700);"><div class="evaluation-graphic evaluation-graphic--results-table evaluation-graphic--percentage"><div class="graphic--percentage-as-a-text graphic graphic--32"><span title="14/18" class="graphic__text">14/18</span></div></div></button></td><td class="cell cell--evaluation js-cell-evaluation evaluation"><button evaluation-identifier="782_10843_0_normal_564777" class="evaluation__content js-evaluation-content c-red-combo--100" style=" --feedback-color: var(--c-red--700);"><div class="evaluation-graphic evaluation-graphic--results-table evaluation-graphic--percentage"><div class="graphic--percentage-as-a-text graphic graphic--32"><span title="10,5/22" class="graphic__text">10,5/22</span></div></div></button></td><td class="cell cell--evaluation js-cell-evaluation evaluation"><button evaluation-identifier="782_10843_0_normal_569223" has-feedback="" class="evaluation__content js-evaluation-content c-red-combo--100" style=" --feedback-color: var(--c-red--700);"><div class="evaluation-graphic evaluation-graphic--results-table evaluation-graphic--percentage"><div class="graphic--percentage-as-a-text graphic graphic--32"><span title="0/15" class="graphic__text">0/15</span></div></div></button></td><td class="cell cell--evaluation js-cell-evaluation evaluation"><button evaluation-identifier="782_10843_0_normal_566913" class="evaluation__content js-evaluation-content c-green-combo--100" style=" --feedback-color: var(--c-green--700);"><div class="evaluation-graphic evaluation-graphic--results-table evaluation-graphic--percentage"><div class="graphic--percentage-as-a-text graphic graphic--32"><span title="8,5/11" class="graphic__text">8,5/11</span></div></div></button></td><td class="cell cell--evaluation js-cell-evaluation evaluation"><button evaluation-identifier="782_10843_0_normal_568903" class="evaluation__content js-evaluation-content c-olive-combo--100" style=" --feedback-color: var(--c-olive--700);"><div class="evaluation-graphic evaluation-graphic--results-table evaluation-graphic--percentage"><div class="graphic--percentage-as-a-text graphic graphic--32"><span title="10/11" class="graphic__text">10/11</span></div></div></button></td><td class="cell cell--evaluation js-cell-evaluation evaluation"><button evaluation-identifier="782_10843_0_normal_572197" class="evaluation__content js-evaluation-content c-yellow-combo--100" style=" --feedback-color: var(--c-yellow--700);"><div class="evaluation-graphic evaluation-graphic--results-table evaluation-graphic--percentage"><div class="graphic--percentage-as-a-text graphic graphic--32"><span title="7/13" class="graphic__text">7/13</span></div></div></button></td><td class="cell cell--evaluation js-cell-evaluation evaluation"><button evaluation-identifier="782_10843_0_normal_575269" class="evaluation__content js-evaluation-content c-red-combo--100" style=" --feedback-color: var(--c-red--700);"><div class="evaluation-graphic evaluation-graphic--results-table evaluation-graphic--percentage"><div class="graphic--percentage-as-a-text graphic graphic--32"><span title="2,5/0" class="graphic__text">2,5/10</span></div></div></button></td><td class="cell cell--evaluation js-cell-evaluation evaluation"><button evaluation-identifier="782_10843_0_normal_576105" class="evaluation__content js-evaluation-content c-green-combo--100" style=" --feedback-color: var(--c-green--700);"><div class="evaluation-graphic evaluation-graphic--results-table evaluation-graphic--percentage"><div class="graphic--percentage-as-a-text graphic graphic--32"><span title="9/11" class="graphic__text">9/11</span></div></div></button></td><td class="cell cell--spacer">&nbsp;</td><td class="cell cell--spacer">&nbsp;</td><td class="cell cell--spacer">&nbsp;</td><td class="cell cell--spacer">&nbsp;</td><td class="cell cell--spacer">&nbsp;</td><td class="cell cell--spacer">&nbsp;</td><td class="cell cell--spacer">&nbsp;</td><td class="cell cell--spacer">&nbsp;</td><td class="cell cell--spacer">&nbsp;</td><td class="cell cell--spacer">&nbsp;</td><td class="cell cell--spacer">&nbsp;</td><td class="cell cell--spacer">&nbsp;</td><td class="cell cell--spacer">&nbsp;</td><td class="cell cell--spacer">&nbsp;</td><td class="cell cell--spacer">&nbsp;</td><td class="cell cell--spacer">&nbsp;</td><td class="cell cell--spacer">&nbsp;</td><td class="cell cell--spacer">&nbsp;</td><td class="cell cell--spacer">&nbsp;</td></tr>'
   html = html[0]
   return(html)
 
@@ -122,7 +142,7 @@ def comp_points(points_list, old_points_list):
   old_points_list = points_list
   return(result)
 
-def get_result(result):
+def send_result(result):
   identifiers = []
   for elem in result:
     elem = elem.split('<button evaluation-identifier="')
@@ -147,6 +167,7 @@ def get_result(result):
       password_field.send_keys(PASSWORD)
       password_field.submit()
 
+    WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, "//*[@class='side-panel__content__score side-panel__content__score--percentage']"))) # Wait for the result to load
     img_container = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, "//*[@class='side-panel__panel']")))
     time.sleep(3) #Time to let the animation load for the screenshot
     
@@ -155,29 +176,32 @@ def get_result(result):
 
     img_crop = img.crop((0, 0, (img.width - 100), 274))
     img_crop = img_crop.save("result_{}.png".format(identifiers.index(elem)))
-    subject = driver.find_element(By.XPATH, "//*[@class='blob-group']/div[2]/div[2]/span")
+
+    subject = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, "//*[@class='blob-group']/div[2]/div[2]/span")))
     if(subject.text not in subjects):
       subjects.append(subject.text)
   driver.close()  
-  send_results(identifiers, subjects)
 
-def send_results(identifiers, subjects):
-  subject_string = "Nieuwe punten van "
-  for elem in identifiers:
-    if(len(subjects) == 1):
-      subject_string = "Nieuw punt van " + subjects[0]
-    elif(len(subjects) == 2):
-      subject_string += subjects[0] + " en " + subjects[1]
-    else:
-      for subject in subjects:
-        if(subjects.index(subject) != (len(subjects) - 1 )):
-          if(subjects.index(subject) != 0):
-            subject_string += ", " + subject
-          else:
-            subject_string += subject
+  if(len(identifiers) == 1):
+    subject_string = "Nieuwe punt van "
+  else:
+    subject_string = "Nieuwe punten van "
+
+  if(len(subjects) == 1):
+    subject_string += subjects[0]
+  elif(len(subjects) == 2):
+    subject_string += subjects[0] + " en " + subjects[1]
+  elif(len(subjects) >= 3):
+    for elem in subjects:
+      if(subjects.index(elem) != (len(subjects) - 1 )):
+        if(subjects.index(elem) != 0):
+          subject_string += ", " + elem
         else:
-            subject_string += " en " + subject
-    del subjects
+          subject_string += elem
+      else:
+          subject_string += " en " + elem
+  subject_string = subject_string.lower()
+  subject_string = subject_string.capitalize()
 
   for elem in identifiers:
     files = {'photo':open("result_{}.png".format(identifiers.index(elem)), 'rb')}
@@ -187,18 +211,16 @@ def send_results(identifiers, subjects):
       time.sleep(2)
       requests.post('https://api.telegram.org/bot{}/sendPhoto?chat_id={}&disable_notification=true'.format(BOT_TOKEN, CHAT_ID), files=files)
     os.remove("result_{}.png".format(identifiers.index(elem)))
-  del identifiers
 
 while True:
   new_html = get_html()
   if(old_html == "EMPTY"):
     old_html = new_html
     old_points_list = split_points(old_html)
-    new_html = ""
   if(new_html != old_html):
     points_list = split_points(new_html)
     result = comp_points(points_list, old_points_list)
-    result = get_result(result)
+    result = send_result(result)
   old_html = new_html
   currentDateAndTime = datetime.now()
   if(int(currentDateAndTime.hour) == start_sleep.hour and SLEEP_ENABLED):
