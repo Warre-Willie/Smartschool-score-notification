@@ -142,7 +142,7 @@ def comp_points(points_list, old_points_list):
   old_points_list = points_list
   return(result)
 
-def send_result(result):
+def get_result(result):
   identifiers = []
   for elem in result:
     elem = elem.split('<button evaluation-identifier="')
@@ -181,27 +181,25 @@ def send_result(result):
     if(subject.text not in subjects):
       subjects.append(subject.text)
   driver.close()  
+  send_results(identifiers, subjects)
 
-  if(len(identifiers) == 1):
-    subject_string = "Nieuwe punt van "
-  else:
-    subject_string = "Nieuwe punten van "
-
-  if(len(subjects) == 1):
-    subject_string += subjects[0]
-  elif(len(subjects) == 2):
-    subject_string += subjects[0] + " en " + subjects[1]
-  elif(len(subjects) >= 3):
-    for elem in subjects:
-      if(subjects.index(elem) != (len(subjects) - 1 )):
-        if(subjects.index(elem) != 0):
-          subject_string += ", " + elem
+def send_results(identifiers, subjects):
+  subject_string = "Nieuwe punten van "
+  for elem in identifiers:
+    if(len(subjects) == 1):
+      subject_string = "Nieuw punt van " + subjects[0]
+    elif(len(subjects) == 2):
+      subject_string += subjects[0] + " en " + subjects[1]
+    else:
+      for subject in subjects:
+        if(subjects.index(subject) != (len(subjects) - 1 )):
+          if(subjects.index(subject) != 0):
+            subject_string += ", " + subject
+          else:
+            subject_string += subject
         else:
-          subject_string += elem
-      else:
-          subject_string += " en " + elem
-  subject_string = subject_string.lower()
-  subject_string = subject_string.capitalize()
+            subject_string += " en " + subject
+    del subjects
 
   for elem in identifiers:
     files = {'photo':open("result_{}.png".format(identifiers.index(elem)), 'rb')}
@@ -211,6 +209,7 @@ def send_result(result):
       time.sleep(2)
       requests.post('https://api.telegram.org/bot{}/sendPhoto?chat_id={}&disable_notification=true'.format(BOT_TOKEN, CHAT_ID), files=files)
     os.remove("result_{}.png".format(identifiers.index(elem)))
+  del identifiers
 
 while True:
   new_html = get_html()
@@ -220,7 +219,7 @@ while True:
   if(new_html != old_html):
     points_list = split_points(new_html)
     result = comp_points(points_list, old_points_list)
-    result = send_result(result)
+    result = get_result(result)
   old_html = new_html
   currentDateAndTime = datetime.now()
   if(int(currentDateAndTime.hour) == start_sleep.hour and SLEEP_ENABLED):
